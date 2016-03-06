@@ -10,10 +10,10 @@ VBML_net <- function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec =
   
   alpha = list(a = parameters$a0 + P / 2, b = parameters$b0)
   lambda = list(c = parameters$c0 + N / 2, d = parameters$d0)
-  beta = list(mu = matrix(0, nrow = P, ncol = 1), var = diag(1, P, P))
+  beta = list(mu = matrix(0, nrow = P, ncol = 1), var = solve((alpha$a / alpha$b) * L))
   
-  # <beta * beta>
-  E_betaSq = sum(beta$mu ^ 2) + sum(diag(beta$var))
+  # <beta %*% L %*% beta>
+  E_betaSqL = t(beta$mu) %*% L %*% beta$mu + sum(beta$var * L)
   # <lambda>
   E_lambda = lambda$c / lambda$d
   # <alpha>
@@ -22,6 +22,8 @@ VBML_net <- function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec =
   E_beta = beta$mu
   # X* X
   xSq = crossprod(x, x)
+  # <beta %*% xSq %*% beta>
+  E_betaSqX = t(beta$mu) %*% xSq %*% beta$mu + sum(beta$var * xSq)
   
   if(rec) {
     alpha.rec <- matrix(unlist(alpha), nrow = 1)
