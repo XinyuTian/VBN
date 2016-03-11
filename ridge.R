@@ -35,13 +35,14 @@ VBML_ridge <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = 
     E_alpha = drop(alpha$a / alpha$b)
     
     # update beta
-    beta$var = diag(E_alpha, P, P) + E_lambda * xSq
-    beta$mu = E_lambda * solve(beta$var) %*% t(x) %*% y
+    beta$delta = diag(E_alpha, P, P) + E_lambda * xSq
+    beta$var = solve(beta$delta)
+    beta$mu = E_lambda * beta$var %*% t(x) %*% y
     E_betaSq = sum(beta$mu ^ 2) + sum(diag(beta$var))
     E_beta = beta$mu
     
     # update lambda
-    lambda$d = parameters$d0 + crossprod(y, y) / 2 - t(E_beta) %*% t(x) %*% y + 0.5 * t(E_beta) %*% t(x) %*% x %*% E_beta
+    lambda$d = parameters$d0 + crossprod(y, y) / 2 - t(E_beta) %*% t(x) %*% y + 0.5 * t(E_beta) %*% xSq %*% E_beta
     E_lambda = drop(lambda$c / lambda$d)
     
     if(rec) {

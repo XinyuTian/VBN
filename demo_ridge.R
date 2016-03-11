@@ -4,6 +4,9 @@ library(MASS)
 setwd("/media/slowsmile/lizhen_WD/Xinyu/VBML/")
 source('simulation_linear.R')
 source('ridge.R')
+source('lasso.R')
+source('net_linear.R')
+source('/media/slowsmile/lizhen_WD/Xinyu/NGLasso/simulation.R')
 
 ## --------------------- SIMULATION -------------- ##
 N = 100 # number of samples
@@ -12,6 +15,12 @@ aP = 5 # number of active features
 
 a = 2; b = 1
 c = 1; d = 4
+
+Amatrix <- repblockMatrixDiagonal(matrix(1,nrow=5,ncol=5), rep=6)
+Dmatrix <- diag(rowSums(Amatrix))
+Lmatrix <- Dmatrix -Amatrix
+di <- 1/sqrt(diag(Lmatrix))
+Lmatrix <- t(t(Lmatrix*di)*di)
 
 data = simulation(N, P, aP, a, b, c, d, eff.size = 2)
 x = data[[1]]
@@ -33,15 +42,16 @@ res = VBML_ridge(x, y, parameters, rec=T)
 
 glm.fit = cv.glmnet(x, y)
 
-
+res_net <- VBML_net(x, y, Lmatrix)
+res_lasso <- VBML_lasso(x, y, rec=T)
 ## ---------------------- PREDICTION ---------------- ##
 ## prediction accuracy
-acc.fn <- function(beta, x, y, npara = NULL) {
+ssr.fn <- function(beta, x, y, npara = NULL) {
   if(!is.null(npara)) beta[order(abs(beta), decreasing = T)][(npara+1):length(beta)] = 0
     
   pred <- x %*%  beta
-  acc <- sqrt(sum((pred - y)^2))
-  return(acc)
+  ssr <- sqrt(sum((pred - y)^2))
+  return(ssr)
 }
 
 beta_glm <- function(cv_fit, type = "1se") {
@@ -51,12 +61,15 @@ beta_glm <- function(cv_fit, type = "1se") {
   return(beta)
 }
 
-acc0 <- acc.fn(res$beta$mu, x, y, npara = 7)
-
 beta1 <- beta_glm(glm.fit) 
-acc1 <- acc.fn(beta1, x, y)
+ssr1 <- ssr.fn(beta1, x, y)
 
 beta2 <- beta_glm(glm.fit, type = "min")
-acc2 <- acc.fn(beta2, x, y)
+ssr2 <- ssr.fn(beta2, x, y)
 
-acc0; acc1; acc2
+k = sum(beta2!=0)
+ssr0 <- ssr.fn(res$beta$mu, x, y, npara = k)
+ssrN <- ssr.fn(res_net$beta$mu, x, y, npara = k)
+ssrL <- ssr.fn(res_lasso$beta$mu, x, y, npara = k)
+
+ssr0; ssrN; ssrL; ssr1; ssr2; k

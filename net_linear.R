@@ -10,7 +10,7 @@ VBML_net <- function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec =
   
   alpha = list(a = parameters$a0 + P / 2, b = parameters$b0)
   lambda = list(c = parameters$c0 + N / 2, d = parameters$d0)
-  beta = list(mu = matrix(0, nrow = P, ncol = 1), var = solve((alpha$a / alpha$b) * L))
+  beta = list(mu = matrix(0, nrow = P, ncol = 1), var = diag(1, P, P))
   
   # <beta %*% L %*% beta>
   E_betaSqL = t(beta$mu) %*% L %*% beta$mu + sum(beta$var * L)
@@ -33,17 +33,19 @@ VBML_net <- function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec =
   
   for (i in 1 : (niter-1)) {
     # update alpha
-    alpha$b = parameters$b0 + E_betaSq / 2
+    alpha$b = parameters$b0 + E_betaSqL / 2
     E_alpha = drop(alpha$a / alpha$b)
     
     # update beta
-    beta$var = diag(E_alpha, P, P) + E_lambda * xSq
-    beta$mu = E_lambda * solve(beta$var) %*% t(x) %*% y
-    E_betaSq = sum(beta$mu ^ 2) + sum(diag(beta$var))
+    beta$delta = E_alpha * L + E_lambda * xSq
+    beta$var = solve(beta$delta)
+    beta$mu = E_lambda * beta$var %*% t(x) %*% y
     E_beta = beta$mu
+    E_betaSqL = t(beta$mu) %*% L %*% beta$mu + sum(beta$var * L)
+    E_betaSqX = t(beta$mu) %*% xSq %*% beta$mu + sum(beta$var * xSq)
     
     # update lambda
-    lambda$d = parameters$d0 + crossprod(y, y) / 2 - t(E_beta) %*% t(x) %*% y + 0.5 * t(E_beta) %*% t(x) %*% x %*% E_beta
+    lambda$d = parameters$d0 + crossprod(y, y) / 2 - t(E_beta) %*% t(x) %*% y + E_betaSqX / 2
     E_lambda = drop(lambda$c / lambda$d)
     
     if(rec) {
