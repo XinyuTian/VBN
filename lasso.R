@@ -7,6 +7,7 @@ VBML_lasso <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = 
   if(is.null(parameters$b0)) parameters$b0 = 1
   if(is.null(parameters$c0)) parameters$c0 = 1
   if(is.null(parameters$d0)) parameters$d0 = 1
+  x = cbind(1, x)
   
 #   if(! is.null(parameters$lambda0)) {
 #     if (is.numeric(parameters$lambda0)) {

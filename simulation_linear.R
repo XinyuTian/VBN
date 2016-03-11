@@ -10,7 +10,7 @@ simulation <- function(N, P, aP, a, b, c, d, eff.size = 1, seed = NULL) {
     
     X[i, ] = rnorm(P)
     
-    y[i, ] = rnorm(1, t(beta[1:aP]) %*% X[i, 1:aP], sqrt(1 / lambda))
+    y[i, ] = rnorm(1, t(beta) %*% X[i, ], sqrt(1 / lambda))
   }
   return (list("x" = X, "y" = y))
 }

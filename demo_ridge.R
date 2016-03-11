@@ -3,6 +3,7 @@ rm(list=ls())
 library(MASS)
 setwd("/media/slowsmile/lizhen_WD/Xinyu/VBML/")
 source('simulation_linear.R')
+source('pred_linear.R')
 source('ridge.R')
 source('lasso.R')
 source('net_linear.R')
@@ -46,20 +47,6 @@ res_net <- VBML_net(x, y, Lmatrix)
 res_lasso <- VBML_lasso(x, y, rec=T)
 ## ---------------------- PREDICTION ---------------- ##
 ## prediction accuracy
-ssr.fn <- function(beta, x, y, npara = NULL) {
-  if(!is.null(npara)) beta[order(abs(beta), decreasing = T)][(npara+1):length(beta)] = 0
-    
-  pred <- x %*%  beta
-  ssr <- sqrt(sum((pred - y)^2))
-  return(ssr)
-}
-
-beta_glm <- function(cv_fit, type = "1se") {
-  lambda <- cv_fit[[paste0("lambda.", type)]]
-  ind <- which(cv_fit$lambda == lambda)
-  beta <- cv_fit$glmnet.fit$beta[, ind]
-  return(beta)
-}
 
 beta1 <- beta_glm(glm.fit) 
 ssr1 <- ssr.fn(beta1, x, y)

@@ -4,7 +4,8 @@ VBML_net <- function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec =
   if(is.null(parameters$b0)) parameters$b0 = 1
   if(is.null(parameters$c0)) parameters$c0 = 1
   if(is.null(parameters$d0)) parameters$d0 = 1
-  
+  x = cbind(1, x)
+  L = blockMatrixDiagonal(matrix(1), L)
   N = nrow(x)
   P = ncol(x)
   
