@@ -16,3 +16,32 @@ beta_glm <- function(cv_fit, type = "1se") {
   beta <- c(cv_fit$glmnet.fit$a0[ind], cv_fit$glmnet.fit$beta[, ind])
   return(beta)
 }
+
+comp <- function(x, y, x.test, y.test, Lmatrix) {
+  ## ---------------------- MODEL ---------------- ##
+  prior = list(a0 = runif(1, 0, 100), b0 = runif(1, 0, 100), c0 = runif(1, 0, 100), d0 = runif(1, 0, 100))
+  res = VBML_ridge(x, y, prior, rec=T)
+  
+  glm.fit = cv.glmnet(x, y)
+  
+  res_net <- VBML_net(x, y, Lmatrix)
+  res_lasso <- VBML_lasso(x, y, rec=T)
+  ## ---------------------- PREDICTION ---------------- ##
+  beta1 <- beta_glm(glm.fit, type = "1se") 
+  ssr1 <- ssr.fn(beta1, x.test, y.test)
+  k1 = sum(beta1!=0)
+  ssr0 <- ssr.fn(res$beta$mu, x.test, y.test, npara = k1)
+  ssrN <- ssr.fn(res_net$beta$mu, x.test, y.test, npara = k1)
+  ssrL <- ssr.fn(res_lasso$beta$mu, x.test, y.test, npara = k1)
+  comp_1se <- c(ridge=ssr0, Lasso=ssrL, network=ssrN, glmnet=ssr1, k=k1)
+  
+  beta2 <- beta_glm(glm.fit, type = "min")
+  ssr2 <- ssr.fn(beta2, x.test, y.test)
+  k2 = sum(beta2!=0)
+  ssr0 <- ssr.fn(res$beta$mu, x.test, y.test, npara = k2)
+  ssrN <- ssr.fn(res_net$beta$mu, x.test, y.test, npara = k2)
+  ssrL <- ssr.fn(res_lasso$beta$mu, x.test, y.test, npara = k2)
+  comp_min <- c(ridge=ssr0, Lasso=ssrL, network=ssrN, glmnet=ssr2, k=k2)
+  
+  return(list('1se'=comp_1se, 'min'=comp_min))
+}
