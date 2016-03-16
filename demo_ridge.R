@@ -34,12 +34,12 @@ y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 # test with glmnet
 # res = cv.glmnet(x, y)
 ## -------------------------  END  ------------- ##
-n_sim = 100
+n_sim = 200
 res_1se <- matrix(nrow = 0, ncol = 5)
 res_min <- matrix(nrow = 0, ncol = 5)
 
 for (i in seq(n_sim)){
-  sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2)
+  sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2, eff="fixed")
   x = sim_data[[1]][1:round(N*r/(1+r)), , drop=F]
   y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
   x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
@@ -50,27 +50,41 @@ for (i in seq(n_sim)){
   res_min <- rbind(res_min, res$min)
 }
 
-jpeg(filename = "~/Dropbox/My R Code/VBML/comp_min.jpeg")
-boxplot(res_min[,1:4], main = "Sums of Squared Residules (min)")
-dev.off()
-jpeg(filename = "~/Dropbox/My R Code/VBML/comp_1se.jpeg")
-boxplot(res_1se[,1:4], main = "Sums of Squared Residules (1se)")
-dev.off()
-
-meank <- function(res, type = NULL, file){
+meank <- function(res, type = NULL, file = NULL){
   tab_mean <- matrix(nrow=0, ncol=4)
   for(i in seq(max(res[,"k"]))) {
     tab_temp <- res[res[,"k"] == i, 1:4, drop=F]
     tab_mean <- rbind(tab_mean, colMeans(tab_temp))
   }
   tab_mean <- data.frame(tab_mean[,1:3]/tab_mean[,4])
-  jpeg(filename = file)
-  matplot(tab_mean, type = c("b"),pch=1,col = c("black", "green", "red"), main = paste("SSR on number of features",type), xlab = "model size", ylab = "SSR ratio")
-  legend("topright", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
-  abline(h=1)
-  dev.off()
-  return(tab_mean)
+  if(!is.null(file)) {
+    jpeg(filename = file)
+    matplot(tab_mean, type = c("b"),pch=1,col = c("black", "green", "red"), main = paste("SSR on number of features",type), xlab = "model size", ylab = "SSR ratio")
+    legend("topright", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
+    abline(h=1)
+    dev.off()
+  } else {
+    matplot(tab_mean, type = c("b"),pch=1,col = c("black", "green", "red"), main = paste("SSR on number of features",type), xlab = "model size", ylab = "SSR ratio")
+    legend("topright", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
+    abline(h=1)
+  }
+  #return(tab_mean)
 }
 
-meank(res_min, type="(min)", file="~/Dropbox/My R Code/VBML/RSSk_min.jpeg")
-meank(res_1se, type="(1se)", file="~/Dropbox/My R Code/VBML/RSSk_1se.jpeg")
+# jpeg(filename = "~/Dropbox/My R Code/VBML/comp_min.jpeg")
+# boxplot(res_min[,1:4], main = "Sums of Squared Residules (min)")
+# dev.off()
+# jpeg(filename = "~/Dropbox/My R Code/VBML/comp_1se.jpeg")
+# boxplot(res_1se[,1:4], main = "Sums of Squared Residules (1se)")
+# dev.off()
+# meank(res_min, type="(min)", file="~/Dropbox/My R Code/VBML/RSSk_min.jpeg")
+# meank(res_1se, type="(1se)", file="~/Dropbox/My R Code/VBML/RSSk_1se.jpeg")
+
+
+jpeg(filename = "~/Dropbox/My R Code/VBML/comp_fixed.jpeg",width = 680, height = 680, quality = 100)
+par(mfrow=c(2,2))
+boxplot(res_min[,1:4], main = "SSR (min)")
+boxplot(res_1se[,1:4], main = "SSR (1se)")
+meank(res_min, type="(min)")
+meank(res_min, type="(1se)")
+dev.off()
