@@ -11,15 +11,15 @@ source('net_linear.R')
 source('/media/slowsmile/lizhen_WD/Xinyu/NGLasso/simulation.R')
 
 ## --------------------- SIMULATION -------------- ##
-N = 200 # number of samples
+N = 100 # number of samples
 r = 1 # #{training samples} / #{test samples}
-P = 30 # number of features
-aP = 5 # number of active features
+P = 200 # number of features
+aP = 20 # number of active features
 
 a = 2; b = 1
 c = 1; d = 4
 
-Amatrix <- repblockMatrixDiagonal(matrix(1,nrow=5,ncol=5), rep=6)
+Amatrix <- repblockMatrixDiagonal(matrix(1,nrow=aP,ncol=aP), rep=P/aP)
 Dmatrix <- diag(rowSums(Amatrix))
 Lmatrix <- Dmatrix -Amatrix
 di <- 1/sqrt(diag(Lmatrix))
@@ -34,7 +34,7 @@ y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 # test with glmnet
 # res = cv.glmnet(x, y)
 ## -------------------------  END  ------------- ##
-n_sim = 200
+n_sim = 20
 res_1se <- matrix(nrow = 0, ncol = 5)
 res_min <- matrix(nrow = 0, ncol = 5)
 
