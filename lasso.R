@@ -82,7 +82,7 @@ VBML_lasso <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = 
     E_tauj = 1 / gamma$mu + 1/ gamma$lambda
     
     # update beta
-    beta$delta = diag(E_gammaj[,], P, P) + E_delta * xSq
+    beta$delta = diag(drop(E_gammaj), P, P) + E_delta * xSq
     beta$var = solve(beta$delta)
     beta$mu = E_delta * beta$var %*% t(x) %*% y
     E_betajSq = beta$mu ^ 2 + diag(beta$var)

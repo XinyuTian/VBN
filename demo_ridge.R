@@ -11,10 +11,10 @@ source('net_linear.R')
 source('/media/slowsmile/lizhen_WD/Xinyu/NGLasso/simulation.R')
 
 ## --------------------- SIMULATION -------------- ##
-N = 100 # number of samples
+N = 200 # number of samples
 r = 1 # #{training samples} / #{test samples}
-P = 200 # number of features
-aP = 20 # number of active features
+P = 30 # number of features
+aP = 5 # number of active features
 
 a = 2; b = 1
 c = 1; d = 4
@@ -34,7 +34,7 @@ y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 # test with glmnet
 # res = cv.glmnet(x, y)
 ## -------------------------  END  ------------- ##
-n_sim = 20
+n_sim = 100
 res_1se <- matrix(nrow = 0, ncol = 5)
 res_min <- matrix(nrow = 0, ncol = 5)
 
@@ -65,7 +65,7 @@ meank <- function(res, type = NULL, file = NULL){
     dev.off()
   } else {
     matplot(tab_mean, type = c("b"),pch=1,col = c("black", "green", "red"), main = paste("SSR on number of features",type), xlab = "model size", ylab = "SSR ratio")
-    legend("topright", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
+    legend("topleft", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
     abline(h=1)
   }
   #return(tab_mean)
@@ -81,10 +81,10 @@ meank <- function(res, type = NULL, file = NULL){
 # meank(res_1se, type="(1se)", file="~/Dropbox/My R Code/VBML/RSSk_1se.jpeg")
 
 
-jpeg(filename = "~/Dropbox/My R Code/VBML/comp_fixed.jpeg",width = 680, height = 680, quality = 100)
+png(filename = "~/Dropbox/My R Code/VBML/comp_fixed.png",width = 680, height = 680)
 par(mfrow=c(2,2))
 boxplot(res_min[,1:4], main = "SSR (min)")
 boxplot(res_1se[,1:4], main = "SSR (1se)")
 meank(res_min, type="(min)")
-meank(res_min, type="(1se)")
+meank(res_1se, type="(1se)")
 dev.off()
