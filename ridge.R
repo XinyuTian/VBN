@@ -8,7 +8,7 @@ VBML_ridge <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = 
   N = nrow(x)
   P = ncol(x)
   
-  alpha = list(a = parameters$a0 + P / 2, b = parameters$b0)
+  alpha = list(a = parameters$a0 + (P-1) / 2, b = parameters$b0)
   lambda = list(c = parameters$c0 + N / 2, d = parameters$d0)
   beta = list(mu = matrix(0, nrow = P, ncol = 1), var = diag(1, P, P))
   
