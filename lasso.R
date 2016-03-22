@@ -115,7 +115,7 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   N = nrow(x)
   P = ncol(x)
 
-  gamma <- rep(TRUE, P)
+  gamma <- rep(TRUE, P);gammause <- c(TRUE,gamma)
   x = cbind(1, x)
   P = ncol(x)
   
@@ -148,11 +148,11 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   }
   
   for (i in 1 : (niter-1)) {
-    gammause <- c(TRUE,gamma)
-    
     # update beta
-    beta$delta = diag(c(0,E_itauj[gamma])) + E_delta * xSq[gammause,gammause]
-    beta$var[gammause,gammause] = solve(beta$delta)
+    if(sum(gammause) > 1) {
+      beta$delta = diag(c(0,E_itauj[gamma])) + E_delta * xSq[gammause,gammause]
+      beta$var[gammause,gammause] = solve(beta$delta)
+    } else beta$var[gammause,gammause] <- matrix(1 / (E_delta * N))
     beta$mu[gammause] = E_delta * beta$var[gammause,gammause] %*% t(x[,gammause]) %*% y
     beta$mu[!gammause] = 0
     E_betajSq = beta$mu ^ 2 + diag(beta$var)
@@ -176,6 +176,7 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
     # updata gamma
     lambda <- 2 * sqrt(E_alpha) / E_delta
     y_diff <-y - x[, gammause, drop=F] %*% beta$mu[gammause, , drop=F]
+    parameters$w >- sqrt(2*pi*E_alpha/E_delta) / 10
     for(j in seq(2,P)) {
       if(gamma[j-1]) {
         yj_fit <- x[,j, drop=F] %*% beta$mu[j]

@@ -35,8 +35,8 @@ y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 # res = cv.glmnet(x, y)
 ## -------------------------  END  ------------- ##
 n_sim = 100
-res_1se <- matrix(nrow = 0, ncol = 5)
-res_min <- matrix(nrow = 0, ncol = 5)
+res_1se <- matrix(nrow = 0, ncol = 7)
+res_min <- matrix(nrow = 0, ncol = 7)
 
 for (i in seq(n_sim)){
   sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2, eff="fixed")
@@ -83,8 +83,8 @@ meank <- function(res, type = NULL, file = NULL){
 
 png(filename = "~/Dropbox/My R Code/VBML/comp_fixed.png",width = 680, height = 680)
 par(mfrow=c(2,2))
-boxplot(res_min[,1:4], main = "SSR (min)")
-boxplot(res_1se[,1:4], main = "SSR (1se)")
+boxplot(res_min[,1:5], main = "SSR (min)")
+boxplot(res_1se[,1:5], main = "SSR (1se)")
 meank(res_min, type="(min)")
 meank(res_1se, type="(1se)")
 dev.off()
