@@ -31,8 +31,6 @@ y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
 x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
 y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 
-# test with glmnet
-# res = cv.glmnet(x, y)
 ## -------------------------  END  ------------- ##
 n_sim = 100
 res_1se <- matrix(nrow = 0, ncol = 7)
@@ -68,7 +66,6 @@ meank <- function(res, type = NULL, file = NULL){
     legend("topleft", legend = names(tab_mean),col = c("black", "green", "red"), pch=1)
     abline(h=1)
   }
-  #return(tab_mean)
 }
 
 # jpeg(filename = "~/Dropbox/My R Code/VBML/comp_min.jpeg")
