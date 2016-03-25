@@ -5,6 +5,8 @@ setwd("/media/slowsmile/lizhen_WD/Xinyu/VBML/")
 source('simulation_log.R')
 source('logistic.R')
 source('pred_log.R')
+library(glmnet)
+source('/media/slowsmile/lizhen_WD/Xinyu/NGLasso/simulation.R')
 
 ## --------------------- SIMULATION -------------- ##
 N = 100 # number of samples
