@@ -4,6 +4,7 @@ library(MASS)
 setwd("/media/slowsmile/lizhen_WD/Xinyu/VBML/")
 source('simulation_log.R')
 source('logistic.R')
+source('log_lasso.R')
 source('pred_log.R')
 library(glmnet)
 source('/media/slowsmile/lizhen_WD/Xinyu/NGLasso/simulation.R')
@@ -22,9 +23,11 @@ Lmatrix <- Dmatrix -Amatrix
 di <- 1/sqrt(diag(Lmatrix))
 Lmatrix <- t(t(Lmatrix*di)*di)
 
-data = simulation_log(N, P, aP, a, b)
-x = data[[1]]
-y = data[[2]]
+sim_data = simulation_log(N, P, aP, a, b)
+x = sim_data[[1]][1:round(N*r/(1+r)), , drop=F]
+y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
+x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
+y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 
 # test with glmnet
 res = glm((y / 2 + 0.5) ~ -1 + x, family = binomial())
