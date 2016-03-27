@@ -31,7 +31,7 @@ y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
 x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
 y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 
-## -------------------------  END  ------------- ##
+## ---------------------------------------------- ##
 n_sim = 100
 res_1se <- matrix(nrow = 0, ncol = 7)
 res_min <- matrix(nrow = 0, ncol = 7)
