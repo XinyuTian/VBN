@@ -42,7 +42,7 @@ logistic <- function(x, y, parameters = NULL, niter = 1000, seed = NULL) {
 }
 
 lam <- function(xi) {
-  return((sigmoid(xi) - 0.5) / 2 / xi)
+  return( - (sigmoid(xi) - 0.5) / 2 / xi)
 }
 
 sigmoid <- function(x) {

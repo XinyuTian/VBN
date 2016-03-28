@@ -36,6 +36,9 @@ res = cv.glmnet(x, (y / 2 + 0.5), family = "binomial")
 beta = glmnet(x, (y / 2 + 0.5), family = "binomial", lambda = res$lambda.1se)$beta
 pred_log(x, y, beta)
 
+param = list(a0 = runif(1,0,10), b0 = runif(1,0,10))
+res = log_ridge(x, y, param)
+pred_log(cbind(1, x), y, res$beta$mu)
 ## ---------------------------------------------- ##
 n_sim = 100
 res_1se <- matrix(nrow = 0, ncol = 7)
