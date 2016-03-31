@@ -55,3 +55,12 @@ log_ridge = function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = FA
   }
   return(list(alpha = alpha, beta = beta, xi = xi))
 }
+
+
+log_net = function(x, y, L, parameters = NULL, niter = 100, seed = NULL, rec = FALSE) {
+  if(! is.null(seed)) set.seed(seed)
+  if(is.null(parameters$a0)) parameters$a0 = 1
+  if(is.null(parameters$b0)) parameters$b0 = 1
+  
+}
+
