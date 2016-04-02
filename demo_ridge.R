@@ -33,8 +33,8 @@ y.test = sim_data[[2]][(round(N*r/(1+r)) + 1):N, , drop=F]
 
 ## ---------------------------------------------- ##
 n_sim = 100
-res_1se <- matrix(nrow = 0, ncol = 7)
-res_min <- matrix(nrow = 0, ncol = 7)
+res_1se <- matrix(nrow = 0, ncol = 8)
+res_min <- matrix(nrow = 0, ncol = 8)
 
 for (i in seq(n_sim)){
   sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2, eff="fixed")

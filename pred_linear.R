@@ -35,7 +35,7 @@ comp <- function(x, y, x.test, y.test, Lmatrix) {
   ssrN <- ssr.fn(res_net$beta$mu, x.test, y.test, npara = k1)
   ssrL <- ssr.fn(res_lasso$beta$mu, x.test, y.test, npara = k1)
   ssrL2 <- ssr.fn(res_lasso2$beta$mu, x.test, y.test, npara = NULL)
-  w <- sqrt(2*pi*(res_lasso2$alpha$a / res_lasso2$alpha$b)/(res_lasso2$delta$c / res_lasso2$delta$d)) / 10
+  w <- sqrt(2*pi*(res_lasso2$alpha$a / res_lasso2$alpha$b)/(res_lasso2$delta$c / res_lasso2$delta$d)) / 2
   comp_1se <- c(ridge=ssr0, Lasso=ssrL, network=ssrN, Lasso2=ssrL2, glmnet=ssr1, k=k1, kl=sum(res_lasso2$beta$mu!=0)-1, w=w)
   
   beta2 <- beta_glm(glm.fit, type = "min")
