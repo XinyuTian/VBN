@@ -102,8 +102,6 @@ VBML_lasso <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = 
   return(list(alpha = alpha, beta = beta, gamma = gamma, delta = delta))
 }
 
-
-
 VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec = FALSE) {
   if(! is.null(seed)) set.seed(seed)
   if(is.null(parameters$a0)) parameters$a0 = 1
@@ -113,11 +111,9 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   if(is.null(parameters$d0)) parameters$d0 = 1
   if(is.null(parameters$w)) parameters$w = 1
   N = nrow(x)
-  P = ncol(x)
-
-  gamma <- rep(TRUE, P);gammause <- c(TRUE,gamma)
   x = cbind(1, x)
   P = ncol(x)
+  gamma <- rep(TRUE, P-1);gammause <- c(TRUE,gamma)
   
   alpha = list(a = parameters$a0 + P-1, b = parameters$b0)
   delta = list(c = parameters$c0 + N / 2, d = parameters$d0)
@@ -145,6 +141,7 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
     delta.rec <- matrix(unlist(delta), nrow = 1)
     itau.rec <- matrix(unlist(itau), nrow = 1)
     gamma.rec <- matrix(gamma, nrow = 1)
+    w.rec <- matrix(parameters$w, nrow = 1)
   }
   
   for (i in 1 : (niter-1)) {
@@ -176,7 +173,7 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
     # updata gamma
     lambda <- 2 * sqrt(E_alpha) / E_delta
     y_diff <-y - x[, gammause, drop=F] %*% beta$mu[gammause, , drop=F]
-    #parameters$w <- sqrt(2*pi*E_alpha/E_delta) / 2
+    #parameters$w <- sqrt(2*pi*E_alpha/E_delta) / 10
     for(j in seq(2,P)) {
       if(gamma[j-1]) {
         yj_fit <- x[,j, drop=F] %*% beta$mu[j]
@@ -187,8 +184,9 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
         yj_fit <- x[,j, drop=F] %*% betaj
         rr <- parameters$w * exp(- E_delta / 2 * (crossprod(y_diff-yj_fit) - crossprod(y_diff) + lambda * abs(betaj)))
       }
-      gamma[j-1] <- (rr>1);gammause <- c(TRUE,gamma)
+      gamma[j-1] <- (rr>1)
     }
+    gammause <- c(TRUE,gamma)
     
     if(rec) {
       alpha.rec <- rbind(alpha.rec, unlist(alpha))
@@ -196,11 +194,12 @@ VBML_lasso2 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
       delta.rec <- rbind(delta.rec, unlist(delta))
       itau.rec <- rbind(itau.rec, unlist(itau))
       gamma.rec <- rbind(gamma.rec, gamma)
+      w.rec <- rbind(w.rec, parameters$w)
     }
   }
-  out <- list(alpha = alpha, beta = beta, itau = itau, delta = delta, gamma = gamma)
+  out <- list(alpha = alpha, beta = beta, itau = itau, delta = delta, gamma = gamma, w=parameters$w)
   if(rec){
-    out <- c(out, list(alpha.rec = alpha.rec, beta.rec = beta.rec, delta.rec = delta.rec, itau.rec = itau.rec, gamma.rec=gamma.rec))
+    out <- c(out, list(alpha.rec = alpha.rec, beta.rec = beta.rec, delta.rec = delta.rec, itau.rec = itau.rec, gamma.rec=gamma.rec, w.rec=w.rec))
   }
   return(out)
 }
@@ -214,11 +213,9 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   if(is.null(parameters$d0)) parameters$d0 = 1
   if(is.null(parameters$w)) parameters$w = 1
   N = nrow(x)
-  P = ncol(x)
-  
-  gamma <- rep(TRUE, P);gammause <- c(TRUE,gamma)
   x = cbind(1, x)
   P = ncol(x)
+  gamma <- rep(TRUE, P-1);gammause <- c(TRUE,gamma)
   
   alpha = list(a = parameters$a0 + P-1, b = parameters$b0)
   delta = list(c = parameters$c0 + N / 2, d = parameters$d0)
@@ -276,19 +273,24 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
     
     # updata gamma
     lambda <- 2 * sqrt(E_alpha) / E_delta
-    parameters$w <- sqrt(2*pi*E_alpha/E_delta) / 10
+    #parameters$w <- sqrt(2*pi*E_alpha/E_delta) / 10
     logdev0 <- logdev(x[, gammause, drop=F], y, lambda)
     for(j in seq(2,P)) {
+      gamma1 <- gammause; gamma1[j] <- !gammause[j]
+      logdev1 <- logdev(x[, gamma1, drop=F], y, lambda)
       if(gamma[j-1]) {
-        
-        rr <- parameters$w * exp(- E_delta / 2 * (crossprod(y_diff) - crossprod(y_diff2) + lambda * abs(beta$mu[j])))
+        rr <- parameters$w * exp(- E_delta / 2 * (logdev0 - logdev1))
       } else{
-        betaj <- crossprod(x[,j],y_diff) / crossprod(x[,j])
-        yj_fit <- x[,j, drop=F] %*% betaj
-        rr <- parameters$w * exp(- E_delta / 2 * (crossprod(y_diff-yj_fit) - crossprod(y_diff) + lambda * abs(betaj)))
+        rr <- parameters$w * exp(- E_delta / 2 * (logdev1 - logdev0))
       }
-      gamma[j-1] <- (rr>1);gammause <- c(TRUE,gamma)
+#       if((rr>1) != gamma[j-1]) {
+#         gamma[j-1] <- (rr>1)
+#         gammause <- c(TRUE,gamma)
+#         logdev0 <- logdev(x[, gammause, drop=F], y, lambda)
+#       }
+      gamma[j-1] <- (rr>1)
     }
+    gammause <- c(TRUE,gamma)
     
     if(rec) {
       alpha.rec <- rbind(alpha.rec, unlist(alpha))
@@ -305,8 +307,21 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   return(out)
 }
 
-## function return 2*(loglike -loglike(Null))
+## function return - 2*(loglike -loglike(Null)) + lambda * penalty
 logdev <- function(x, y, lambda) {
-  glmfit <- glmnet(x, y, family = 'gaussian', lambda = lambda)
-  return(glmfit$nulldev * glmfit$dev.ratio)
+  if(ncol(x) == 1) return(0)
+  if(ncol(x) == 2) {
+    # -2*loglike(Null)
+    llN <- crossprod(y - mean(y))
+    # -2*loglike
+    b <- solve(t(x) %*% x) %*% t(x) %*% y
+    beta <- pmax(abs(b) - c(0, lambda / 2 / nrow(y)), 0) * sign(b)
+    ll <- crossprod(y - x %*% matrix(beta))
+    out = - ll + llN + lambda * abs(beta[2])
+    return(out)
+  }
+  glmfit <- glmnet(x[,-1], y, family = 'gaussian', lambda = lambda / nrow(y) / 2)
+  beta <- as.matrix(glmfit$beta)
+  out = - glmfit$nulldev * glmfit$dev.ratio + lambda * sum(abs(beta))
+  return(out)
 }
