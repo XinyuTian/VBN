@@ -212,6 +212,10 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
   if(is.null(parameters$d0)) parameters$d0 = 1
   if(is.null(parameters$d0)) parameters$d0 = 1
   if(is.null(parameters$w)) parameters$w = 1
+  
+  muy = mean(y)
+  sdy = sd(y)
+  y = (y - muy) / sdy
   N = nrow(x)
   x = cbind(1, x)
   P = ncol(x)
@@ -272,7 +276,7 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
     E_tauj = 1 / itau$mu + 1/ itau$lambda
     
     # updata gamma
-    lambda <- 2 * sqrt(E_alpha) / E_delta
+    lambda <- 2 * sqrt(E_alpha) / E_delta * sdy
     #parameters$w <- sqrt(2*pi*E_alpha/E_delta) / 10
     logdev0 <- logdev(x[, gammause, drop=F], y, lambda)
     for(j in seq(2,P)) {
@@ -300,6 +304,8 @@ VBML_lasso3 <- function(x, y, parameters = NULL, niter = 100, seed = NULL, rec =
       gamma.rec <- rbind(gamma.rec, gamma)
     }
   }
+  beta$mu <- sdy * beta$mu; beta$mu[1] <- beta$mu[1] + muy
+  beta$var <- (sdy ^ 2) * beta$var
   out <- list(alpha = alpha, beta = beta, itau = itau, delta = delta, gamma = gamma)
   if(rec){
     out <- c(out, list(alpha.rec = alpha.rec, beta.rec = beta.rec, delta.rec = delta.rec, itau.rec = itau.rec, gamma.rec=gamma.rec))

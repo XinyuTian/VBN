@@ -1,4 +1,5 @@
 ## calculate prediction accuracy
+## npara is the number of non-zero parameters, including intercept
 ssr.fn <- function(beta, x, y, npara = NULL) {
   beta0 = beta[1]
   beta = beta[-1]
@@ -20,7 +21,7 @@ beta_glm <- function(cv_fit, type = "1se") {
 comp <- function(x, y, x.test, y.test, Lmatrix) {
   ## ---------------------- MODEL ---------------- ##
   prior = list(a0 = runif(1, 0, 10), b0 = runif(1, 0, 10), c0 = runif(1, 0, 10), d0 = runif(1, 0, 10))
-  res = VBML_ridge(x, y, prior, rec=T)
+  res_glm = VBML_ridge(x, y, prior, rec=T)
   
   glm.fit = cv.glmnet(x, y)
   
@@ -32,7 +33,7 @@ comp <- function(x, y, x.test, y.test, Lmatrix) {
   beta1 <- beta_glm(glm.fit, type = "1se") 
   ssr1 <- ssr.fn(beta1, x.test, y.test)
   k1 = sum(beta1!=0)
-  ssr0 <- ssr.fn(res$beta$mu, x.test, y.test, npara = k1)
+  ssr0 <- ssr.fn(res_glm$beta$mu, x.test, y.test, npara = k1)
   ssrN <- ssr.fn(res_net$beta$mu, x.test, y.test, npara = k1)
   ssrL <- ssr.fn(res_lasso$beta$mu, x.test, y.test, npara = k1)
   ssrL2 <- ssr.fn(res_lasso2$beta$mu, x.test, y.test, npara = NULL)
@@ -43,7 +44,7 @@ comp <- function(x, y, x.test, y.test, Lmatrix) {
   beta2 <- beta_glm(glm.fit, type = "min")
   ssr2 <- ssr.fn(beta2, x.test, y.test)
   k2 = sum(beta2!=0)
-  ssr0 <- ssr.fn(res$beta$mu, x.test, y.test, npara = k2)
+  ssr0 <- ssr.fn(res_glm$beta$mu, x.test, y.test, npara = k2)
   ssrN <- ssr.fn(res_net$beta$mu, x.test, y.test, npara = k2)
   ssrL <- ssr.fn(res_lasso$beta$mu, x.test, y.test, npara = k2)
   ssrL2 <- ssr.fn(res_lasso2$beta$mu, x.test, y.test, npara = NULL)
