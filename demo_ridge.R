@@ -17,7 +17,7 @@ P = 30 # number of features
 aP = 5 # number of active features
 
 a = 2; b = 1
-c = 1; d = 4
+c = 1; d = 1
 
 Amatrix <- repblockMatrixDiagonal(matrix(1,nrow=aP,ncol=aP), rep=P/aP)
 Dmatrix <- diag(rowSums(Amatrix))
