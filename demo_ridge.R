@@ -25,7 +25,7 @@ Lmatrix <- Dmatrix -Amatrix
 di <- 1/sqrt(diag(Lmatrix))
 Lmatrix <- t(t(Lmatrix*di)*di)
 
-sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2)
+sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2, eff="fixed")
 x = sim_data[[1]][1:round(N*r/(1+r)), , drop=F]
 y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
 x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
@@ -37,7 +37,7 @@ res_1se <- matrix(nrow = 0, ncol = 9)
 res_min <- matrix(nrow = 0, ncol = 9)
 
 for (i in seq(n_sim)){
-  sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2, eff="fixed")
+  sim_data = simulation(N, P, aP, a, b, c, d, eff.size = 2)
   x = sim_data[[1]][1:round(N*r/(1+r)), , drop=F]
   y = sim_data[[2]][1:round(N*r/(1+r)), , drop=F]
   x.test = sim_data[[1]][(round(N*r/(1+r)) + 1):N, , drop=F]
